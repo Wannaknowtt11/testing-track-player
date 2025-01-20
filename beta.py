@@ -9,16 +9,21 @@ user_id = '7320155385'
 
 # ฟังก์ชันเพื่อตรวจสอบสถานะออนไลน์ของผู้เล่นจาก API presence
 def is_user_online(user_id):
-    url = f"https://presence.roblox.com/v1/presence/users"
-    response = requests.post(url, json={"userIds": [user_id]})
+    url = "https://presence.roblox.com/v1/presence/users"
+    payload = {"userIds": [user_id]}
+    response = requests.post(url, json=payload)
     
+    # ตรวจสอบว่าคำขอสำเร็จหรือไม่
     if response.status_code == 200:
         presence_data = response.json()
-        # ตรวจสอบสถานะออนไลน์ของผู้เล่น
-        if presence_data['data'][0]['userId'] == int(user_id):
-            return presence_data['data'][0]['isOnline']
+        print("API Response:", presence_data)  # ตรวจสอบข้อมูลที่ได้รับ
+        # ตรวจสอบว่ามีคีย์ 'data' หรือไม่
+        if 'data' in presence_data and presence_data['data']:
+            return presence_data['data'][0].get('isOnline', False)  # คืนค่า isOnline
+        else:
+            print("ไม่พบข้อมูลในคีย์ 'data'")
     else:
-        print(f"เกิดข้อผิดพลาดในการดึงข้อมูลจาก API: {response.status_code}")
+        print(f"เกิดข้อผิดพลาด: {response.status_code}, ข้อความ: {response.text}")
     return False
 
 # ฟังก์ชันเพื่อตรวจสอบว่าอยู่ในเกมไหน
