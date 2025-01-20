@@ -7,20 +7,19 @@ WEBHOOK_URL = 'https://discord.com/api/webhooks/1321422848539234345/GYlkEJxUSmUr
 # UserID ของผู้เล่น
 user_id = '7320155385'
 
-# ฟังก์ชันเพื่อตรวจสอบสถานะออนไลน์ของผู้เล่นจากการอยู่ในเกม
-def is_user_in_game(user_id):
-    url = f"https://api.roblox.com/users/{user_id}/current-game"
-    response = requests.get(url)
+# ฟังก์ชันเพื่อตรวจสอบสถานะออนไลน์ของผู้เล่นจาก API presence
+def is_user_online(user_id):
+    url = f"https://presence.roblox.com/v1/presence/users"
+    response = requests.post(url, json={"userIds": [user_id]})
     
     if response.status_code == 200:
-        game_data = response.json()
-        if 'game' in game_data:
-            return True
-        else:
-            return False
+        presence_data = response.json()
+        # ตรวจสอบสถานะออนไลน์ของผู้เล่น
+        if presence_data['data'][0]['userId'] == int(user_id):
+            return presence_data['data'][0]['isOnline']
     else:
-        print(f"เกิดข้อผิดพลาดในการดึงข้อมูลเกม: {response.status_code}")
-        return False
+        print(f"เกิดข้อผิดพลาดในการดึงข้อมูลจาก API: {response.status_code}")
+    return False
 
 # ฟังก์ชันเพื่อตรวจสอบว่าอยู่ในเกมไหน
 def get_user_game_info(user_id):
@@ -48,8 +47,8 @@ def track_user_status(user_id):
     # รอ 5 วินาที (หรือเวลาที่ต้องการ) ก่อนเริ่มทำงานต่อ
     time.sleep(5)
     
-    # ตรวจสอบสถานะออนไลน์จากการอยู่ในเกม
-    if is_user_in_game(user_id):
+    # ตรวจสอบสถานะออนไลน์จาก API presence
+    if is_user_online(user_id):
         game_name, place_id, job_id = get_user_game_info(user_id)
         if game_name and place_id and job_id:
             game_link = f"https://www.roblox.com/games/{place_id}/JobId={job_id}"
