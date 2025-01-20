@@ -14,8 +14,16 @@ def is_user_online(user_id):
     
     if response.status_code == 200:
         user_data = response.json()
-        return user_data['isOnline']  # ตรวจสอบว่าออนไลน์หรือไม่
-    return False
+        print(user_data)  # พิมพ์ข้อมูลเพื่อดูรูปแบบข้อมูลที่ได้รับ
+        # ตรวจสอบว่ามีข้อมูล 'isOnline' หรือไม่
+        if 'isOnline' in user_data:
+            return user_data['isOnline']  # ตรวจสอบว่าออนไลน์หรือไม่
+        else:
+            print("ไม่พบคีย์ 'isOnline' ในข้อมูลที่ได้รับ")
+            return False
+    else:
+        print(f"เกิดข้อผิดพลาดในการดึงข้อมูลผู้เล่น: {response.status_code}")
+        return False
 
 # ฟังก์ชันเพื่อตรวจสอบว่าอยู่ในเกมไหน
 def get_user_game_info(user_id):
